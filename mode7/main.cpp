@@ -8,7 +8,7 @@
 #include <cassert>
 #include <array>
 
-#define JJ_FULLSCREEN
+//#define JJ_FULLSCREEN
 
 #define maxTimePerFrame (sf::seconds(1.f / (80.0)))
 // TODO should be minTime? There should be a max too...
@@ -436,7 +436,7 @@ class Track
 
 
 public:
-	Track(int w, int h)
+	Track(int w, int h):paintTrack_(false), showTrack_(false)
 	{
 		w_ = w;
 		h_ = h;
@@ -448,9 +448,10 @@ public:
 		}
 #else
 		track_.create(w, h, sf::Color::Yellow);
+
 		for (int x = 0; x < w_; x++)
 		{
-			if ((x / 20) % 2)
+			if ((x / 2) % 2)
 			{
 				for (int y = 0; y < h_; y++)
 				{
@@ -460,15 +461,14 @@ public:
 		}
 		for (int y = 0; y < h_; y++)
 		{
-			if ((y / 20) % 2)
+			if (!((y / 2) % 2))
 			{
 				for (int x = 0; x < w_; x++)
 				{
-					track_.setPixel(x, y, sf::Color::Red);
+					if ((x / 2) % 2)track_.setPixel(x, y, sf::Color::Red);
 				}
 			}
 		}
-
 #endif
 		projection_.create(w_, h_, sf::Color::Magenta);
 	}
@@ -485,8 +485,8 @@ public:
 		fov = 2000;// 200;
 
 		px = x;
-		py = fov;
-		pz = y + horizon;
+		py = -fov;
+		pz = -y + horizon;
 
 		//projection 
 		sx = px / pz;
@@ -496,6 +496,9 @@ public:
 		//syi = sy;
 
 	}
+
+	bool paintTrack_;
+	bool showTrack_;
 	void update()
 	{
 //#if 1
@@ -524,7 +527,7 @@ public:
 		getTrackCoords(w_ / 2 - 1, -h_ / 2 + 1, sx, sy);
 		std::cout << sx << " " << sy << std::endl;
 
-		for (y = -yres / 2; y < yres / 2; y++)
+		for (y = -yres / 2; y <= 0; y++)
 			for (x = -xres / 2; x < xres / 2; x++)
 			{
 				/*
@@ -546,28 +549,28 @@ public:
 
 
 				color = get2DTexture(sx * scaling, sy * scaling);
-				//putColorOnTrack(sx * scaling, sy * scaling, sf::Color::White);
+				if (paintTrack_) {
+				putColorOnTrack(sx * scaling, sy * scaling, sf::Color::White);
 
-
+				}
 				//put (color) at (x, y) on screen
 				putColorOnScreen(x, y, color);
 
-			}
+			
 
-
-//		putColorOnTrack(0.0, 0.0, sf::Color::White);
-
+		
+		//	putColorOnTrack(0.0, 0.0, sf::Color::White);
+		}
+#if 0
 		// TODO random +1,-1 to make it work...?
 		putColorOnScreen(0, 0, sf::Color::White);
 		putColorOnScreen(-1*w_/2 +1, h_/2-1, sf::Color::White);
 		putColorOnScreen( w_ / 2 -1, h_ / 2 - 1, sf::Color::White);
 		putColorOnScreen(w_ / 2 - 1, -h_ / 2 + 1, sf::Color::White);
-
-//#else
-		//projection_ = track_;
-
-
-//#endif
+#endif
+		if (showTrack_) {
+			projection_ = track_;
+		}
 
 
 
@@ -715,6 +718,36 @@ int main()
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 		}
+
+
+
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::T)) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+			{
+				track.showTrack_ = false;
+			}
+			else {
+				track.showTrack_ = true;
+			}
+		}
+
+
+
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+			{
+				track.paintTrack_ = false;
+			}
+			else {
+				track.paintTrack_ = true;
+			}
+		}
+
+
+
+
+
 
 	}
 	return 0;
