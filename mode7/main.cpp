@@ -8,7 +8,7 @@
 #include <cassert>
 #include <array>
 
-//#define JJ_FULLSCREEN
+#define JJ_FULLSCREEN
 
 #define maxTimePerFrame (sf::seconds(1.f / (80.0)))
 // TODO should be minTime? There should be a max too...
@@ -390,11 +390,11 @@ class Track
 
 
 public:
-	Track(int w, int h):paintTrack_(false), showTrack_(false)
+	Track(int w, int h)
 	{
 		w_ = w;
 		h_ = h;
-#if 0
+#if 1
 		if (!track_.loadFromFile("../res/track.png"))
 		{
 			printf("Error loading pic!\n");
@@ -402,7 +402,7 @@ public:
 		}
 #else
 		track_.create(w, h, sf::Color::Yellow);
-#if 0
+#if 1
 		for (int x = 0; x < w_; x++)
 		{
 			if ((x / 2) % 2)
@@ -429,30 +429,6 @@ public:
 		projection_.create(w_, h_, sf::Color::Magenta);
 	}
 
-	void getTrackCoords(int xi, int yi, float& sx, float&sy)
-	{
-		float x = xi;
-		float y = yi;
-//		float sx, sy;
-		float horizon, fov, px, py, pz;
-
-
-		horizon = 2000;//20; //adjust if needed
-		fov = 2000;// 200;
-
-		px = x;
-		py = -fov;
-		pz = -y + horizon;
-
-		//projection 
-		sx = px / pz;
-		sy = py / pz;
-
-		//sxi = sx;
-		//syi = sy;
-
-	}
-
 	void putColorOnTrack(float x, float y, sf::Color c)
 	{
 		int tx = x * track_.getSize().x;
@@ -460,6 +436,17 @@ public:
 		//std::cout << tx << " " << ty << std::endl;
 		track_.setPixel(tx, ty, c);
 	}
+
+
+	sf::Color getColorSample(float x, float y)
+	{
+		int tx = x * track_.getSize().x;
+		int ty = y * track_.getSize().y;
+		//std::cout << tx << " " << ty << std::endl;
+		return track_.getPixel(tx, ty);
+	}
+
+
 
 	void plotOnTrack(float x, float y, sf::Color c)
 	{
@@ -477,26 +464,31 @@ public:
 	}
 
 
-	bool paintTrack_;
-	bool showTrack_;
+	bool paintTrack_ = false;
+	bool showTrack_ = false;
+
+
+	float wx = 0.5;
+	float wy = 0.5;
+	float theta = 0;
+	float alpha = M_PI / 4;
+	float near = 0.1;
+	float far = 0.3;
+
+
+
 	void update()
 	{
 		// https://gamedev.stackexchange.com/questions/24957/doing-an-snes-mode-7-affine-transform-effect-in-pygame
 
-
+		/*
 		int yres = h_;
 		int xres = w_;
 		int y, x, horizon, fov, px, py, pz,  scaling;
 		sf::Color color;
 		float sx, sy;
+		*/
 
-
-		float wx = 0.5;
-		float wy = 0.5;
-		float theta = 0;
-		float alpha = M_PI / 8;
-		float near = 0.1;
-		float far = 0.3;
 
 
 		float sinmin = sinf(theta - alpha);
@@ -523,58 +515,37 @@ public:
 		plotOnTrack(nx1, ny1, sf::Color::Magenta);
 		plotOnTrack(nx2, ny2, sf::Color::Red);
 
-		for (y = -yres / 2; y <= 0; y++)
-			for (x = -xres / 2; x < xres / 2; x++)
+		for (int y = h_ - 1; y >= h_ / 2; y--)
+		{
+			float sampleDepth = y / (h_ / 2.0);
+
+			float startX = (fx1 - nx1) / sampleDepth + nx1;
+			float startY = (fy1 - ny1) / sampleDepth + ny1;
+			float endX = (fx2 - nx2) / sampleDepth + nx2;
+			float endY = (fy2 - ny2) / sampleDepth + ny2;
+
+
+
+			for (int x = 0; x < w_; x++)
 			{
-				/*
-				horizon = 5000;//20; //adjust if needed
-				fov = 2000;// 200;
+				float sampleWidth = (float)x / w_;
+				float sx = (endX - startX)*sampleWidth + startX;
+				float sy = (endY - startY)*sampleWidth + startY;
+
+
+				//putColorOnTrack(sx, sy, sf::Color::White);
+				sf::Color c = getColorSample(sx, sy);
 				
-				px = x;
-				py = fov;
-				pz = y + horizon;
-
-				//projection 
-				sx = px / pz;
-				sy = py / pz;
-
-				*/
-
-
-				//put (color) at (x, y) on screen
-	//			putColorOnScreen(x, y, color);
-
-			
-
-		
-		//	putColorOnTrack(0.0, 0.0, sf::Color::White);
+				projection_.setPixel(x, y, c);
+			}
 		}
-
 
 		plotOnTrack(wx, wy, sf::Color::White);
-#if 0
-		if (paintTrack_) {
-			for (int i = 0; i < 100; i++)
-			{
-
-				putColorOnTrack(0.001*i, 0.001 * i, sf::Color::White);
-				putColorOnTrack(0.001*i, 0.001 * (i + 1), sf::Color::White);
-			}
-
-		}
-
-#endif
 
 
 		if (showTrack_) {
 			projection_ = track_;
 		}
-
-
-
-
-
-
 
 		texture_.loadFromImage(projection_);
 		sprite_.setTexture(texture_);
