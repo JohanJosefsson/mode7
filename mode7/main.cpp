@@ -383,55 +383,9 @@ class Track
 	sf::Texture texture_;
 	sf::Sprite sprite_;
 
-	//static const int X = 20000;
-	//static const int Y = 10000;
 	int w_;
 	int h_;
 
-
-
-	sf::Color get2DTexture(int sx, int sy)
-	{
-		int tw = track_.getSize().x;
-		int th = track_.getSize().y;
-		int tx = sx + tw / 2;
-		int ty = sy + th / 2;
-		if (tx < 0 || ty < 0 || tx > tw || ty > th)return(sf::Color::Cyan);
-		return track_.getPixel(tx ,ty);
-	}
-
-	// (0,0) in middle of screen, y increases upwards
-	void putColorOnScreen(int x, int y, sf::Color c)
-	{
-		projection_.setPixel(x + w_/2 , h_/2 - y -1, c);
-		//projection_.setPixel(0, 0, sf::Color::Cyan);
-	}
-
-
-	// (0,0) in middle of track, y increases upwards
-	void putColorOnTrack(int sx, int sy, sf::Color c)
-	{
-//		projection_.setPixel(x + track_.getSize().x / 2, track_.getSize().x / 2 - y - 1, c);
-		//projection_.setPixel(0, 0, sf::Color::Cyan);
-
-	//	std::cout << "putColorOnTrack() " << sx << " " << sy << std::endl;
-
-		int tw = track_.getSize().x;
-		int th = track_.getSize().y;
-		int tx = sx + tw / 2;
-		int ty = sy + th / 2;
-		if (tx < 0 || ty < 0 || tx > tw || ty > th) {
-			std::cout << "." << std::endl;
-			return;
-		}
-		track_.setPixel(tx, ty, c);
-
-
-
-
-
-
-	}
 
 
 
@@ -448,7 +402,7 @@ public:
 		}
 #else
 		track_.create(w, h, sf::Color::Yellow);
-
+#if 0
 		for (int x = 0; x < w_; x++)
 		{
 			if ((x / 2) % 2)
@@ -469,6 +423,8 @@ public:
 				}
 			}
 		}
+#endif
+
 #endif
 		projection_.create(w_, h_, sf::Color::Magenta);
 	}
@@ -497,11 +453,34 @@ public:
 
 	}
 
+	void putColorOnTrack(float x, float y, sf::Color c)
+	{
+		int tx = x * track_.getSize().x;
+		int ty = y * track_.getSize().y;
+		//std::cout << tx << " " << ty << std::endl;
+		track_.setPixel(tx, ty, c);
+	}
+
+	void plotOnTrack(float x, float y, sf::Color c)
+	{
+
+		int tx = x * track_.getSize().x;
+		int ty = y * track_.getSize().y;
+
+		for (int ox = -1; ox < 2; ox++)
+		{
+			for (int oy = -1; oy < 2; oy++)
+			{
+				track_.setPixel(tx + ox, ty + oy, c);
+			}
+		}
+	}
+
+
 	bool paintTrack_;
 	bool showTrack_;
 	void update()
 	{
-//#if 1
 		// https://gamedev.stackexchange.com/questions/24957/doing-an-snes-mode-7-affine-transform-effect-in-pygame
 
 
@@ -511,21 +490,38 @@ public:
 		sf::Color color;
 		float sx, sy;
 
-/*
-		putColorOnScreen(0, 0, sf::Color::White);
-		putColorOnScreen(-1 * w_ / 2 + 1, h_ / 2 - 1, sf::Color::White);
-		putColorOnScreen(w_ / 2 - 1, h_ / 2 - 1, sf::Color::White);
-		putColorOnScreen(w_ / 2 - 1, -h_ / 2 + 1, sf::Color::White);
-		*/
-		std::cout << ":" << std::endl;
-		getTrackCoords(0, 0, sx, sy);
-		std::cout << sx << " " << sy << std::endl;
-		getTrackCoords(-1 * w_ / 2 + 1, h_ / 2 - 1, sx, sy);
-		std::cout << sx << " " << sy << std::endl;
-		getTrackCoords(w_ / 2 - 1, h_ / 2 - 1, sx, sy);
-		std::cout << sx << " " << sy << std::endl;
-		getTrackCoords(w_ / 2 - 1, -h_ / 2 + 1, sx, sy);
-		std::cout << sx << " " << sy << std::endl;
+
+		float wx = 0.5;
+		float wy = 0.5;
+		float theta = 0;
+		float alpha = M_PI / 8;
+		float near = 0.1;
+		float far = 0.3;
+
+
+		float sinmin = sinf(theta - alpha);
+		float sinplu = sinf(theta + alpha);
+		float cosmin = cosf(theta - alpha);
+		float cosplu = cosf(theta + alpha);
+
+
+		// far x left et c.
+		float fx1 = wx + far * sinf(theta - alpha);
+		float fx2 = wx + far * sinf(theta + alpha);
+		float fy1 = wy - far * cosf(theta - alpha);
+		float fy2 = wy - far * cosf(theta + alpha);
+
+		float nx1 = wx + near * sinf(theta - alpha);
+		float nx2 = wx + near * sinf(theta + alpha);
+		float ny1 = wy - near * cosf(theta - alpha);
+		float ny2 = wy - near * cosf(theta + alpha);
+
+
+
+		plotOnTrack(fx1, fy1, sf::Color::Cyan);
+		plotOnTrack(fx2, fy2, sf::Color::Blue);
+		plotOnTrack(nx1, ny1, sf::Color::Magenta);
+		plotOnTrack(nx2, ny2, sf::Color::Red);
 
 		for (y = -yres / 2; y <= 0; y++)
 			for (x = -xres / 2; x < xres / 2; x++)
@@ -544,30 +540,32 @@ public:
 
 				*/
 
-				getTrackCoords(x, y, sx, sy);
-				scaling = 200; //adjust if needed, depends of texture size
 
-
-				color = get2DTexture(sx * scaling, sy * scaling);
-				if (paintTrack_) {
-				putColorOnTrack(sx * scaling, sy * scaling, sf::Color::White);
-
-				}
 				//put (color) at (x, y) on screen
-				putColorOnScreen(x, y, color);
+	//			putColorOnScreen(x, y, color);
 
 			
 
 		
 		//	putColorOnTrack(0.0, 0.0, sf::Color::White);
 		}
+
+
+		plotOnTrack(wx, wy, sf::Color::White);
 #if 0
-		// TODO random +1,-1 to make it work...?
-		putColorOnScreen(0, 0, sf::Color::White);
-		putColorOnScreen(-1*w_/2 +1, h_/2-1, sf::Color::White);
-		putColorOnScreen( w_ / 2 -1, h_ / 2 - 1, sf::Color::White);
-		putColorOnScreen(w_ / 2 - 1, -h_ / 2 + 1, sf::Color::White);
+		if (paintTrack_) {
+			for (int i = 0; i < 100; i++)
+			{
+
+				putColorOnTrack(0.001*i, 0.001 * i, sf::Color::White);
+				putColorOnTrack(0.001*i, 0.001 * (i + 1), sf::Color::White);
+			}
+
+		}
+
 #endif
+
+
 		if (showTrack_) {
 			projection_ = track_;
 		}
