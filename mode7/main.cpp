@@ -396,8 +396,10 @@ class Track
 	float wy = 0.5;
 	float theta = 0;
 	float alpha = M_PI / 4;
-	float near = 0.1;
-	float far = 0.3;
+	float near = 0.005;
+	float far = 0.15;
+	//float near = 0.1;
+	//float far = 0.3;
 
 
 	void putColorOnTrack(float x, float y, sf::Color c)
