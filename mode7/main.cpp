@@ -484,10 +484,12 @@ class Track
 
 
 		if (showTrack_) {
-			projection_ = track_;
+			texture_.loadFromImage(track_);
+		}
+		else {
+			texture_.loadFromImage(projection_);
 		}
 
-		texture_.loadFromImage(projection_);
 		sprite_.setTexture(texture_);
 	}
 public:
