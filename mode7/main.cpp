@@ -411,6 +411,7 @@ class Track
 
 	sf::Color getColorSample(float x, float y)
 	{
+		if (x < 0.0 || x >= 1.0 || y < 0.0 || y >= 1.0)return sf::Color::Cyan;
 		int tx = x * track_.getSize().x;
 		int ty = y * track_.getSize().y;
 		//std::cout << tx << " " << ty << std::endl;
@@ -429,7 +430,10 @@ class Track
 		{
 			for (int oy = -1; oy < 2; oy++)
 			{
-				track_.setPixel(tx + ox, ty + oy, c);
+				int px = tx + ox;
+				int py = ty + oy;
+				if(px >= 0 && px < track_.getSize().x && py >= 0 && py < track_.getSize().y)
+				track_.setPixel(px, py, c);
 			}
 		}
 	}
@@ -449,11 +453,12 @@ class Track
 		float ny2 = wy - near * cosf(theta + alpha);
 
 
-
-		plotOnTrack(fx1, fy1, sf::Color::Cyan);
-		plotOnTrack(fx2, fy2, sf::Color::Blue);
-		plotOnTrack(nx1, ny1, sf::Color::Magenta);
-		plotOnTrack(nx2, ny2, sf::Color::Red);
+		if (paintTrack_) {
+			plotOnTrack(fx1, fy1, sf::Color::Cyan);
+			plotOnTrack(fx2, fy2, sf::Color::Blue);
+			plotOnTrack(nx1, ny1, sf::Color::Magenta);
+			plotOnTrack(nx2, ny2, sf::Color::Red);
+		}
 
 		for (int y = h_ - 1; y >= h_ / 2; y--)
 		{
@@ -503,14 +508,18 @@ public:
 		w_ = w;
 		h_ = h;
 #if 1
-		if (!track_.loadFromFile("../res/track.png"))
+//		if (!track_.loadFromFile("../res/track.png"))
+		if (!track_.loadFromFile("../res/omni.png"))
 		{
 			printf("Error loading pic!\n");
 			exit(1);
 		}
 #else
 		track_.create(w, h, sf::Color::Yellow);
-#if 1
+
+
+
+#if 0
 		for (int x = 0; x < w_; x++)
 		{
 			if ((x / 2) % 2)
@@ -531,13 +540,55 @@ public:
 				}
 			}
 		}
+
+#else
+
+
+		for (int x = 0; x < w_; x++)
+		{
+			for (int y = 0; y < h_; y++)
+			{
+				if ((x / 10) % 2 && (y / 10) % 2)track_.setPixel(x, y, sf::Color::Red);
+			}
+		}
+
+
+
 #endif
+
+
+
+
+
+
+
+
 
 #endif
 		projection_.create(w_, h_, sf::Color::Magenta);
 	}
 
-	void tick(sf::Time dTime) {};
+	void tick(sf::Time dTime) {
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+			theta -= dTime.asSeconds()*(M_PI * 2) / (5.0);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+			theta += dTime.asSeconds()*(M_PI * 2) / (5.0);
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+			wx += dTime.asSeconds()*(0.05)*sinf(theta);
+			wy -= dTime.asSeconds()*(0.05)*cosf(theta);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+			wx -= dTime.asSeconds()*(0.05)*sinf(theta);
+			wy += dTime.asSeconds()*(0.05)*cosf(theta);
+		}
+
+
+
+
+	};
 
 
 
