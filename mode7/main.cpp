@@ -657,6 +657,7 @@ int main()
 		board.draw(window);
 		//tree.draw(window);
 		track.draw(window);
+		text.draw(window);
 
 		// end the current frame
 		window.display();
@@ -674,6 +675,8 @@ int main()
 
 			board.tick(dTime);
 			track.tick(dTime);
+			sprintf(text.getBuf(), "% 4.2f", dTime / maxTimePerFrame);
+			//printf("% 4.2f ", dTime / maxTimePerFrame);
 			//tree.move(rfwd, rsw);
 		}
 		jsx = board.get();
