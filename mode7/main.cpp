@@ -389,45 +389,16 @@ class Track
 
 
 
-public:
-	Track(int w, int h)
-	{
-		w_ = w;
-		h_ = h;
-#if 1
-		if (!track_.loadFromFile("../res/track.png"))
-		{
-			printf("Error loading pic!\n");
-			exit(1);
-		}
-#else
-		track_.create(w, h, sf::Color::Yellow);
-#if 1
-		for (int x = 0; x < w_; x++)
-		{
-			if ((x / 2) % 2)
-			{
-				for (int y = 0; y < h_; y++)
-				{
-					track_.setPixel(x, y, sf::Color::Blue);
-				}
-			}
-		}
-		for (int y = 0; y < h_; y++)
-		{
-			if (!((y / 2) % 2))
-			{
-				for (int x = 0; x < w_; x++)
-				{
-					if ((x / 2) % 2)track_.setPixel(x, y, sf::Color::Red);
-				}
-			}
-		}
-#endif
 
-#endif
-		projection_.create(w_, h_, sf::Color::Magenta);
-	}
+
+
+	float wx = 0.5;
+	float wy = 0.5;
+	float theta = 0;
+	float alpha = M_PI / 4;
+	float near = 0.1;
+	float far = 0.3;
+
 
 	void putColorOnTrack(float x, float y, sf::Color c)
 	{
@@ -463,39 +434,8 @@ public:
 		}
 	}
 
-
-	bool paintTrack_ = false;
-	bool showTrack_ = false;
-
-
-	float wx = 0.5;
-	float wy = 0.5;
-	float theta = 0;
-	float alpha = M_PI / 4;
-	float near = 0.1;
-	float far = 0.3;
-
-
-
-	void update()
+	void updateSprite()
 	{
-		// https://gamedev.stackexchange.com/questions/24957/doing-an-snes-mode-7-affine-transform-effect-in-pygame
-
-		/*
-		int yres = h_;
-		int xres = w_;
-		int y, x, horizon, fov, px, py, pz,  scaling;
-		sf::Color color;
-		float sx, sy;
-		*/
-
-
-
-		float sinmin = sinf(theta - alpha);
-		float sinplu = sinf(theta + alpha);
-		float cosmin = cosf(theta - alpha);
-		float cosplu = cosf(theta + alpha);
-
 
 		// far x left et c.
 		float fx1 = wx + far * sinf(theta - alpha);
@@ -550,8 +490,59 @@ public:
 		texture_.loadFromImage(projection_);
 		sprite_.setTexture(texture_);
 	}
+public:
+	// Debug flags
+	bool paintTrack_ = false;
+	bool showTrack_ = false;
+
+
+	Track(int w, int h)
+	{
+		w_ = w;
+		h_ = h;
+#if 1
+		if (!track_.loadFromFile("../res/track.png"))
+		{
+			printf("Error loading pic!\n");
+			exit(1);
+		}
+#else
+		track_.create(w, h, sf::Color::Yellow);
+#if 1
+		for (int x = 0; x < w_; x++)
+		{
+			if ((x / 2) % 2)
+			{
+				for (int y = 0; y < h_; y++)
+				{
+					track_.setPixel(x, y, sf::Color::Blue);
+				}
+			}
+		}
+		for (int y = 0; y < h_; y++)
+		{
+			if (!((y / 2) % 2))
+			{
+				for (int x = 0; x < w_; x++)
+				{
+					if ((x / 2) % 2)track_.setPixel(x, y, sf::Color::Red);
+				}
+			}
+		}
+#endif
+
+#endif
+		projection_.create(w_, h_, sf::Color::Magenta);
+	}
+
+	void tick(sf::Time dTime) {};
+
+
+
+
 	void draw(sf::RenderWindow& bkg)
 	{
+		updateSprite();
 		bkg.draw(sprite_);
 	}
 
@@ -627,7 +618,7 @@ int main()
 
 
 			board.tick(dTime);
-			track.update();
+			track.tick(dTime);
 			//tree.move(rfwd, rsw);
 		}
 		jsx = board.get();
