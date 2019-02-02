@@ -396,14 +396,13 @@ class Track
 	float wy = 0.5;
 	float theta = 0;
 	float alpha = M_PI / 4;
-	float near = 0.005;
-	float far = 0.15;
-	//float near = 0.1;
-	//float far = 0.3;
+	float near = 0.0005;
+	float far = 0.015;
 
 
 	void putColorOnTrack(float x, float y, sf::Color c)
 	{
+		if (x < 0.0 || x >= 1.0 || y < 0.0 || y >= 1.0)return;
 		int tx = x * track_.getSize().x;
 		int ty = y * track_.getSize().y;
 		//std::cout << tx << " " << ty << std::endl;
@@ -464,14 +463,15 @@ class Track
 
 		for (int y = h_ - 1; y >= h_ / 2; y--)
 		{
-			float sampleDepth = y / (h_ / 2.0);
+			float sampleDepth = (y - h_ / 2) / (h_ / 2.0);
 
 			float startX = (fx1 - nx1) / sampleDepth + nx1;
 			float startY = (fy1 - ny1) / sampleDepth + ny1;
 			float endX = (fx2 - nx2) / sampleDepth + nx2;
 			float endY = (fy2 - ny2) / sampleDepth + ny2;
 
-
+			//putColorOnTrack(startX, startY, sf::Color::Green);
+			//putColorOnTrack(endX, endY, sf::Color::Green);
 
 			for (int x = 0; x < w_; x++)
 			{
