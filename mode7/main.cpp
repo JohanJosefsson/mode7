@@ -7,8 +7,9 @@
 #include <math.h>
 #include <cassert>
 #include <array>
+#include <vector>
 
-#define JJ_FULLSCREEN
+//#define JJ_FULLSCREEN
 
 #define maxTimePerFrame (sf::seconds(1.f / (80.0)))
 // TODO should be minTime? There should be a max too...
@@ -604,9 +605,262 @@ public:
 
 };
 
+
+
+class D3Vec
+{
+	void clear()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			v[i] = 0.0;
+		}
+	}
+
+public:
+
+	D3Vec()
+	{
+		clear();
+	}
+	D3Vec(float x, float y, float z, float w)
+	{
+		v[0] = x;
+		v[1] = y;
+		v[2] = z;
+		v[3] = w;
+	}
+	float v[4]; // x, y, z , w
+	void print()
+	{
+		for (int r = 0; r < 4; r++)
+		{
+			std::cout << v[r];
+			std::cout << std::endl;
+		}
+	}
+	static D3Vec pos(float x, float y, float z)
+	{
+		D3Vec r;
+		r.v[0] = x;
+		r.v[1] = y;
+		r.v[2] = z;
+		r.v[3] = 1.0;
+		return r;
+	}
+};
+
+class D3Mat
+{
+public:
+	float v[4][4];  // [row][col]
+	D3Mat()
+	{
+		for (int r = 0; r < 4; r++)
+		{
+			for (int c = 0; c < 4; c++)
+			{
+				v[r][c] = 0.0;
+			}
+		}
+
+	}
+	D3Vec cross(D3Vec t)
+	{
+		D3Vec d;
+		for (int r = 0; r < 4; r++)
+		{
+			d.v[r] = 0.0;
+			for (int c = 0; c < 4; c++)
+			{
+				d.v[r] += t.v[c] * v[r][c];
+			}
+		}
+		return d;
+	}
+	static D3Mat unity()
+	{
+		D3Mat d;
+		for (int i = 0; i < 4; i++)
+		{
+			d.v[i][i] = 1.0;
+		}
+		return d;
+	}
+
+	static D3Mat trans(D3Vec v)
+	{
+		D3Mat d = unity();
+		for (int i = 0; i < 4; i++)
+		{
+			d.v[i][3] = v.v[i];
+		}
+		assert(d.v[3][3] == 1.0);
+		return d;
+	}
+
+
+
+	static D3Mat scale(D3Vec v)
+	{
+		D3Mat d = unity();
+		for (int i = 0; i < 4; i++)
+		{
+			d.v[i][i] = v.v[i];
+		}
+		d.v[3][3] = 1.0;
+		return d;
+	}
+
+
+// http://www.opengl-tutorial.org/assets/faq_quaternions/index.html#Q30
+
+//	        | cos(A) - sin(A)    0   0 |
+//		M = | sin(A)   cos(A)    0   0 |
+//		    |  0        0        1   0 |
+//		    |  0        0        0   1 |
+	static D3Mat rotZ(float a)
+	{
+		D3Mat d = unity();
+		d.v[0][0] = cosf(a);
+		d.v[0][1] = sinf(a);
+		d.v[1][0] = -sinf(a);
+		d.v[1][1] = cosf(a);		
+		return d;
+	}
+
+
+
+
+
+	void print()
+	{
+		for (int r = 0; r < 4; r++)
+		{
+			for (int c = 0; c < 4; c++)
+			{
+				std::cout << v[r][c] << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+
+};
+
+
+
+
+
+
+// float alpha = M_PI / 4;
+// float near = 0.0005;
+// float far = 0.015;
+#define alpha = M_PI / 4;
+#define near (0.0005)
+#define far (0.015)
+
+
+class D3
+{
+
+	// create an empty shape
+	sf::ConvexShape convex;
+
+	int w_;
+	int h_;
+
+public:
+
+	std::vector<D3Vec> arr;
+
+	D3(int w, int h)
+	{
+		w_ = w;
+		h_ = h;
+
+
+#if 0
+		// resize it to 5 points
+		convex.setPointCount(5);
+
+		// define the points
+		convex.setPoint(0, sf::Vector2f(0, 0));
+		convex.setPoint(1, sf::Vector2f(150, 10));
+		convex.setPoint(2, sf::Vector2f(120, 90));
+		convex.setPoint(3, sf::Vector2f(30, 100));
+		convex.setPoint(4, sf::Vector2f(0, 50));
+#endif
+	}
+
+	void draw(sf::RenderWindow& bkg)
+	{
+		if (arr.size() < 2)return;
+		convex.setPointCount(arr.size());
+		for (int i = 0; i < arr.size(); i++)
+		{
+			sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
+			//std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
+			convex.setPoint(i, sfvec);
+		}
+		bkg.draw(convex);
+	}
+	void add(D3Vec v)
+	{
+		arr.push_back(v);
+	}
+
+	void addxy(float x, float y)
+	{
+		D3Vec d;
+		d.v[0] = x;
+		d.v[1] = y;
+		d.v[2] = 0.0;
+		d.v[3] = 1.0;
+		arr.push_back(d);
+	}
+
+	void clear()
+	{
+		arr.clear();
+	}
+	
+
+	
+
+};
+
+
+
 int main()
 {
+
+
+	D3Mat d = D3Mat::unity();
+	std::cout << "------" << std::endl;
+	//d.print();
+
+	std::cout << "------" << std::endl;
+	D3Vec v;
+	//v.print();
+	std::cout << "------" << std::endl;
+	D3Vec v1;
+
+	v1 = d.cross(v);
+
+	//v1.print();
+	std::cout << "------" << std::endl;
+	D3Vec v2 = D3Vec::pos(0.1, 0.2, 0.0);
+	//v2.print();
+	std::cout << "------" << std::endl;
+
+	D3Mat tr = D3Mat::trans(v2);
+	std::cout << "translation" << std::endl;
+	tr.print();
+
+
+
 	Board board;
+	//D3 d3;
 
 	float jsx = 0.0; //TODO
 
@@ -617,9 +871,15 @@ int main()
 	window.setVerticalSyncEnabled(true);
 
 
-
 	sf::Clock clock; // starts the clock
 	sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
+
+	D3 d3(screen.getWidth(), screen.getHeight());
+	d3.addxy(-0.1, -0.1);
+	d3.addxy(0.1, -0.1);
+	d3.addxy(0.1, 0.1);
+	//d3.addxy(-0.1, 0.1);
 
 	Text text;
 	Track track(screen.getWidth(), screen.getHeight());
@@ -658,6 +918,7 @@ int main()
 		//tree.draw(window);
 		track.draw(window);
 		text.draw(window);
+		d3.draw(window);
 
 		// end the current frame
 		window.display();
@@ -681,6 +942,9 @@ int main()
 		}
 		jsx = board.get();
 		int printjsx = (int)jsx;
+
+
+		static bool spacedone = false;
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
@@ -734,7 +998,20 @@ int main()
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
 			board.startCalibration();
 		}
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !spacedone) {
+			spacedone = true;
+			//D3Mat mat = D3Mat::scale(D3Vec(0.5, 3.0, 0.0, 0.0));
+			D3Mat mat = D3Mat::rotZ(-M_PI / 8);
+			for (int i = 0; i < d3.arr.size(); i++)
+			{
+				std::cout << i << " before:" << std::endl;
+				d3.arr[i].print();
+				//d3.arr[i] = tr.cross(d3.arr[i]);
+				d3.arr[i] = mat.cross(d3.arr[i]);
+				std::cout << "after:" << std::endl;
+				d3.arr[i].print();
+
+			}
 		}
 
 
