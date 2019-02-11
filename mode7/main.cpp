@@ -633,11 +633,15 @@ public:
 	float v[4]; // x, y, z , w
 	void print()
 	{
+		std::cout << "[ ";
 		for (int r = 0; r < 4; r++)
 		{
 			std::cout << v[r];
-			std::cout << std::endl;
+			if(r < 2)std::cout << ", ";
+			
 		}
+		std::cout << " ]";
+		std::cout << std::endl;
 	}
 	static D3Vec pos(float x, float y, float z)
 	{
@@ -713,12 +717,67 @@ public:
 	}
 
 
-// http://www.opengl-tutorial.org/assets/faq_quaternions/index.html#Q30
+
+
+
+	// http://www.opengl-tutorial.org/assets/faq_quaternions/index.html#Q30
+
+//	Q28.How do I generate a rotation matrix in the X - axis ?
+//		------------------------------------------------------ -
+//
+//		Use the 4x4 matrix :
+//
+//	        |  1  0        0      0 |
+//		M = |  0  cos(A) -sin(A)  0 |
+//		    |  0  sin(A)  cos(A)  0 |
+//		    |  0  0       0       1 |
+
+	static D3Mat rotX(float a)
+	{
+		//row, col
+		D3Mat d = unity();
+		d.v[1][1] = cosf(a);
+		d.v[1][2] = -sinf(a);
+		d.v[2][1] = sinf(a);
+		d.v[2][2] = cosf(a);
+		return d;
+	}
+
+
+
+//		Q29.How do I generate a rotation matrix in the Y - axis ?
+//		------------------------------------------------------ -
+
+//		Use the 4x4 matrix :
+
+//	        | cos(A)   0   sin(A)  0 |
+//		M = | 0        1   0       0 |
+//		    | -sin(A)  0   cos(A)  0 |
+//		    |  0       0   0       1 |
+
+	static D3Mat rotY(float a)
+	{
+		//row, col
+		D3Mat d = unity();
+		d.v[0][0] = cosf(a);
+		d.v[0][2] = sinf(a);
+		d.v[2][0] = -sinf(a);
+		d.v[2][2] = cosf(a);
+		return d;
+	}
+
+
+
+//		Q30.How do I generate a rotation matrix in the Z - axis ?
+//		------------------------------------------------------ -
+
+//		Use the 4x4 matrix :
 
 //	        | cos(A) - sin(A)    0   0 |
 //		M = | sin(A)   cos(A)    0   0 |
 //		    |  0        0        1   0 |
 //		    |  0        0        0   1 |
+
 	static D3Mat rotZ(float a)
 	{
 		D3Mat d = unity();
@@ -755,10 +814,10 @@ public:
 // float alpha = M_PI / 4;
 // float near = 0.0005;
 // float far = 0.015;
-#define alpha = M_PI / 4;
+#define alpha (M_PI / 4)
 #define near (0.0005)
 #define far (0.015)
-
+#define NEAR (near * cosf(alpha))
 
 class D3
 {
@@ -798,7 +857,24 @@ public:
 		convex.setPointCount(arr.size());
 		for (int i = 0; i < arr.size(); i++)
 		{
-			sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
+			//float x = w_ / 2 * (1 + arr[i].v[0]);
+			//float y = h_ / 2 * (1 + arr[i].v[1]);
+			float z = arr[i].v[2];
+			float xp = -arr[i].v[0] /z*NEAR;
+			float yp = -arr[i].v[1] /z * NEAR * (w_/h_);
+			float xb = w_ / 2 * (1 + xp);
+			float yb = h_ / 2 * (1 + xp);
+
+
+
+			//xb = w_ / 2 * (1 + arr[i].v[0]);
+			xb = w_ / 2 * (1 - arr[i].v[0]/z*NEAR);
+			yb = h_ / 2 * (1 - arr[i].v[1] / z * NEAR);
+
+
+
+			sf::Vector2f sfvec(xb, yb);
+			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
 			//std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
 			convex.setPoint(i, sfvec);
 		}
@@ -830,6 +906,71 @@ public:
 };
 
 
+
+
+char getKey()
+{
+
+	static struct Keymap
+	{
+
+		sf::Keyboard::Key kcode;
+		bool isPressed;
+		const char * ckode_p;
+	}keymap[] =
+	{
+
+		//{sf::Keyboard::A, false, "A"} // returns 'a'
+		//{sf::Keyboard::B, false, "B"} // returns 'a'
+#define KEYMAP(x) {sf::Keyboard::##x, false, #x}
+		KEYMAP(A),
+		KEYMAP(B),
+		KEYMAP(C),
+		KEYMAP(D),
+		KEYMAP(E),
+		KEYMAP(F),
+		KEYMAP(G),
+		KEYMAP(H),
+		KEYMAP(I),
+		KEYMAP(J),
+		KEYMAP(K),
+		KEYMAP(L),
+		KEYMAP(M),
+		KEYMAP(N),
+		KEYMAP(O),
+		KEYMAP(P),
+		KEYMAP(Q),
+		KEYMAP(R),
+		KEYMAP(S),
+		KEYMAP(T),
+		KEYMAP(U),
+		KEYMAP(V),
+		KEYMAP(W),
+		KEYMAP(X),
+		KEYMAP(Y),
+		KEYMAP(Z),
+
+
+#undef KEYMAP
+	};
+
+	for (int i = 0; i < sizeof(keymap) / sizeof(Keymap); i++)
+	{
+		if (sf::Keyboard::isKeyPressed(keymap[i].kcode))
+		{
+			keymap[i].isPressed = true;
+		}
+		if (keymap[i].isPressed && !sf::Keyboard::isKeyPressed(keymap[i].kcode))
+		{
+			keymap[i].isPressed = false;
+			return (*keymap[i].ckode_p - ('A' - 'a'));
+		}
+		
+	}
+	return '\0';
+	//sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
+
+};
 
 int main()
 {
@@ -876,9 +1017,14 @@ int main()
 
 
 	D3 d3(screen.getWidth(), screen.getHeight());
-	d3.addxy(-0.1, -0.1);
-	d3.addxy(0.1, -0.1);
-	d3.addxy(0.1, 0.1);
+	//d3.addxy(-0.1, -0.1);
+	//d3.addxy(0.1, -0.1);
+	//d3.addxy(0.1, 0.1);
+	d3.add(D3Vec(-0.1, -0.1, 0.0, 1.0));
+	d3.add(D3Vec(0.1, -0.1, 0.0, 1.0));
+	d3.add(D3Vec(0.1, 0.1, 0.0, 1.0));
+
+
 	//d3.addxy(-0.1, 0.1);
 
 	Text text;
@@ -946,6 +1092,21 @@ int main()
 
 		static bool spacedone = false;
 
+
+		switch (getKey())
+		{
+
+		case 'a':
+			std::cout << "a" << std::endl;
+			break;
+		case 'b':
+			std::cout << "b" << std::endl;
+			break;
+		}
+
+
+
+#if 0
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			//
@@ -1001,13 +1162,17 @@ int main()
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !spacedone) {
 			spacedone = true;
 			//D3Mat mat = D3Mat::scale(D3Vec(0.5, 3.0, 0.0, 0.0));
-			D3Mat mat = D3Mat::rotZ(-M_PI / 8);
+			//D3Mat mat = D3Mat::rotZ(-M_PI / 8);
+
+			D3Mat mat1 = D3Mat::trans(D3Vec(0.1, 0.0, -NEAR, 1.0));
+			D3Mat mat2 = D3Mat::D3Mat::rotX(0.0);
+
 			for (int i = 0; i < d3.arr.size(); i++)
 			{
 				std::cout << i << " before:" << std::endl;
 				d3.arr[i].print();
 				//d3.arr[i] = tr.cross(d3.arr[i]);
-				d3.arr[i] = mat.cross(d3.arr[i]);
+				d3.arr[i] = mat1.cross(mat2.cross(d3.arr[i]));
 				std::cout << "after:" << std::endl;
 				d3.arr[i].print();
 
@@ -1038,6 +1203,7 @@ int main()
 				track.paintTrack_ = true;
 			}
 		}
+#endif
 
 
 
