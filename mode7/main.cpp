@@ -900,6 +900,18 @@ public:
 		arr.clear();
 	}
 	
+	void apply(D3Mat& mat)
+	{
+		for (int i = 0; i < arr.size(); i++)
+		{
+			std::cout << i << " before:" << std::endl;
+			arr[i].print();
+			arr[i] = mat.cross(arr[i]);
+			std::cout << "after:" << std::endl;
+			arr[i].print();
+		}
+	}
+
 
 	
 
@@ -1097,12 +1109,45 @@ int main()
 		{
 
 		case 'a':
+		{
 			std::cout << "a" << std::endl;
+			D3Mat mat1 = D3Mat::trans(D3Vec(0.1, 0.0, -NEAR, 1.0));
+			d3.apply(mat1);
 			break;
+		}
 		case 'b':
+		{
 			std::cout << "b" << std::endl;
 			break;
 		}
+
+		case 'x':
+		{
+			std::cout << "a" << std::endl;
+			D3Mat mat1 = D3Mat::rotX(0.0001);
+			d3.apply(mat1);
+			break;
+		}
+
+
+		case 'y':
+		{
+			std::cout << "a" << std::endl;
+			D3Mat mat1 = D3Mat::rotY(0.0001);
+			d3.apply(mat1);
+			break;
+		}
+
+
+		case 'z':
+		{
+			std::cout << "a" << std::endl;
+			D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
+			d3.apply(mat1);
+			break;
+		}
+
+		}; //switch
 
 
 
