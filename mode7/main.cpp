@@ -891,6 +891,39 @@ public:
 
 	void drawPers(sf::RenderWindow& bkg)
 	{
+#if 0
+		doTransform();
+		if (arr.size() < 2)return;
+		convex.setPointCount(arr.size());
+		for (int i = 0; i < arr.size(); i++)
+		{
+			//float x = w_ / 2 * (1 + arr[i].v[0]);
+			//float y = h_ / 2 * (1 + arr[i].v[1]);
+			float z = -2 * NEAR;// arr[i].v[2];
+			float xp = -arr[i].v[0] / z * NEAR;
+			float yp = -arr[i].v[1] / z * NEAR * (w_ / h_);
+			float xb = w_ / 2 * (1 + xp);
+			float yb = h_ / 2 * (1 + xp);
+
+
+
+			//xb = w_ / 2 * (1 + arr[i].v[0]);
+			xb = w_ / 2 * (1 - arr[i].v[0] / z * NEAR);
+			yb = h_ / 2 * (1 - arr[i].v[1] / z * NEAR);
+
+
+
+			sf::Vector2f sfvec(xb, yb);
+			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
+			std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
+			convex.setPoint(i, sfvec);
+		}
+		bkg.draw(convex);
+
+
+
+
+#else
 		doTransform();
 		if (parr.size() < 2)return;
 		convex.setPointCount(parr.size());
@@ -898,7 +931,13 @@ public:
 		{
 			//float x = w_ / 2 * (1 + arr[i].v[0]);
 			//float y = h_ / 2 * (1 + arr[i].v[1]);
+
+			
 			float z = parr[i].v[2];
+			//float z = -2 * NEAR;
+			std::cout << i << ": "  << (z / NEAR) << " " << (parr[i].v[2]) << " " << (arr[i].v[2]) << std::endl;
+
+
 			float xp = -parr[i].v[0] /z*NEAR;
 			float yp = -parr[i].v[1] /z * NEAR * (w_/h_);
 			float xb = w_ / 2 * (1 + xp);
@@ -918,6 +957,7 @@ public:
 			convex.setPoint(i, sfvec);
 		}
 		bkg.draw(convex);
+#endif
 	}
 
 
@@ -1146,7 +1186,7 @@ int main()
 	//d3.addxy(0.1, -0.1);
 	//d3.addxy(0.1, 0.1);
 	d3.add(D3Vec(-0.1, -0.1, 0.0, 1.0));
-	d3.add(D3Vec(0.1, -0.1, 0.5, 1.0));
+	d3.add(D3Vec(0.1, -0.1, 0.0, 1.0));
 	d3.add(D3Vec(0.1, 0.1, 0.0, 1.0));
 
 
@@ -1177,7 +1217,7 @@ int main()
 				}
 			}
 		}
-		//window.clear(graphicData.getBkgCol());
+		window.clear(sf::Color::Magenta);
 
 
 		// draw everything here...
@@ -1187,9 +1227,11 @@ int main()
 
 		board.draw(window);
 		//tree.draw(window);
-		track.draw(window);
+		//track.draw(window);
 		text.draw(window);
-		d3.drawFlatXZ(window);
+		d3.drawFlatXY(window);
+		//d3.drawFlatXZ(window);
+		//d3.drawPers(window);
 
 		// end the current frame
 		window.display();
@@ -1206,7 +1248,7 @@ int main()
 
 
 			board.tick(dTime);
-			track.tick(dTime);
+			//track.tick(dTime);
 			sprintf(text.getBuf(), "% 4.2f", dTime / maxTimePerFrame);
 			//printf("% 4.2f ", dTime / maxTimePerFrame);
 			//tree.move(rfwd, rsw);
@@ -1273,22 +1315,32 @@ int main()
 		{
 			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
 			//d3.apply(mat1);
-			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * 2, 1.0));
+			static int turn;
+			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * turn++, 1.0));
 			d3.addPlStage(mat1, 1);
 			break;
 		}
 
-		case 'w':
+		case 'x':
 		{
-			D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
+			static int turn;
+			D3Mat mat1 = D3Mat::rotX(M_PI / 16.0*turn++);
 			d3.addPlStage(mat1, 0);
 			break;
 		}
 
-		case 'e':
+		case 'y':
 		{
-			static int yturn;
-			D3Mat mat1 = D3Mat::rotY(0.01 * yturn++);
+			static int turn;
+			D3Mat mat1 = D3Mat::rotY(M_PI / 16.0*turn++);
+			d3.addPlStage(mat1, 0);
+			break;
+		}
+
+		case 'z':
+		{
+			static int turn;
+			D3Mat mat1 = D3Mat::rotZ(M_PI / 16.0*turn++);
 			d3.addPlStage(mat1, 0);
 			break;
 		}
@@ -1299,13 +1351,6 @@ int main()
 			//d3.apply(mat1);
 			D3Mat mat1 = D3Mat::trans(D3Vec(0.2, 0.0, 0.0, 1.0));
 			d3.addPlStage(mat1, 1);
-			break;
-		}
-		case 't':
-		{
-			static int turn;
-			D3Mat mat1 = D3Mat::rotX(0.01 * turn++);
-			d3.addPlStage(mat1, 0);
 			break;
 		}
 
