@@ -818,6 +818,7 @@ public:
 #define near (0.0005)
 #define far (0.015)
 #define NEAR (near * cosf(alpha))
+#define FAR (far * cosf(alpha))
 
 class D3
 {
@@ -933,7 +934,7 @@ public:
 			//float y = h_ / 2 * (1 + arr[i].v[1]);
 
 			
-			float z = parr[i].v[2];
+			float z = parr[i].v[2]*(FAR - NEAR);
 			//float z = -2 * NEAR;
 			std::cout << i << ": "  << (z / NEAR) << " " << (parr[i].v[2]) << " " << (arr[i].v[2]) << std::endl;
 
@@ -1186,7 +1187,7 @@ int main()
 	//d3.addxy(0.1, -0.1);
 	//d3.addxy(0.1, 0.1);
 	d3.add(D3Vec(-0.1, -0.1, 0.0, 1.0));
-	d3.add(D3Vec(0.1, -0.1, 0.0, 1.0));
+	d3.add(D3Vec(0.1, -0.1, 0.005, 1.0));
 	d3.add(D3Vec(0.1, 0.1, 0.0, 1.0));
 
 
@@ -1229,9 +1230,9 @@ int main()
 		//tree.draw(window);
 		//track.draw(window);
 		text.draw(window);
-		d3.drawFlatXY(window);
+		//d3.drawFlatXY(window);
 		//d3.drawFlatXZ(window);
-		//d3.drawPers(window);
+		d3.drawPers(window);
 
 		// end the current frame
 		window.display();
