@@ -819,6 +819,7 @@ public:
 #define far (0.015)
 #define NEAR (near * cosf(alpha))
 #define FAR (far * cosf(alpha))
+#define LAMBDA (near * sinf(alpha))
 
 class D3
 {
@@ -892,73 +893,30 @@ public:
 
 	void drawPers(sf::RenderWindow& bkg)
 	{
-#if 0
-		doTransform();
-		if (arr.size() < 2)return;
-		convex.setPointCount(arr.size());
-		for (int i = 0; i < arr.size(); i++)
-		{
-			//float x = w_ / 2 * (1 + arr[i].v[0]);
-			//float y = h_ / 2 * (1 + arr[i].v[1]);
-			float z = -2 * NEAR;// arr[i].v[2];
-			float xp = -arr[i].v[0] / z * NEAR;
-			float yp = -arr[i].v[1] / z * NEAR * (w_ / h_);
-			float xb = w_ / 2 * (1 + xp);
-			float yb = h_ / 2 * (1 + xp);
-
-
-
-			//xb = w_ / 2 * (1 + arr[i].v[0]);
-			xb = w_ / 2 * (1 - arr[i].v[0] / z * NEAR);
-			yb = h_ / 2 * (1 - arr[i].v[1] / z * NEAR);
-
-
-
-			sf::Vector2f sfvec(xb, yb);
-			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
-			std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
-			convex.setPoint(i, sfvec);
-		}
-		bkg.draw(convex);
-
-
-
-
-#else
 		doTransform();
 		if (parr.size() < 2)return;
 		convex.setPointCount(parr.size());
 		for (int i = 0; i < parr.size(); i++)
 		{
-			//float x = w_ / 2 * (1 + arr[i].v[0]);
-			//float y = h_ / 2 * (1 + arr[i].v[1]);
-
+			//D3Mat mat = D3Mat::unity();
+			//D3Mat mat = D3Mat::scale(D3Vec(1.0, 1.0, 1.0, 1.0));
+			D3Mat mat = D3Mat::scale(D3Vec(LAMBDA, LAMBDA, LAMBDA, 1.0));
+			D3Vec d3 = mat.cross(parr[i]);
+			//mat.print();
 			
-			float z = parr[i].v[2]*(FAR - NEAR);
-			//float z = -2 * NEAR;
-			std::cout << i << ": "  << (z / NEAR) << " " << (parr[i].v[2]) << " " << (arr[i].v[2]) << std::endl;
+			float z = d3.v[2]*(FAR - NEAR);
 
-
-			float xp = -parr[i].v[0] /z*NEAR;
-			float yp = -parr[i].v[1] /z * NEAR * (w_/h_);
+			float xp = -d3.v[0] /z*NEAR;
+			float yp = -d3.v[1] /z * NEAR * (w_/h_);
 			float xb = w_ / 2 * (1 + xp);
 			float yb = h_ / 2 * (1 + xp);
-
-
-
-			//xb = w_ / 2 * (1 + arr[i].v[0]);
-			xb = w_ / 2 * (1 - parr[i].v[0]/z*NEAR);
-			yb = h_ / 2 * (1 - parr[i].v[1] / z * NEAR);
-
-
+			xb = w_ / 2 * (1 - d3.v[0]/z*NEAR);
+			yb = h_ / 2 * (1 - d3.v[1] / z * NEAR);
 
 			sf::Vector2f sfvec(xb, yb);
-			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
-			//std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
 			convex.setPoint(i, sfvec);
 		}
 		bkg.draw(convex);
-#endif
 	}
 
 
