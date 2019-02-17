@@ -896,22 +896,42 @@ public:
 		doTransform();
 		if (parr.size() < 2)return;
 		convex.setPointCount(parr.size());
+		std::cout << std::endl;
 		for (int i = 0; i < parr.size(); i++)
 		{
-			//D3Mat mat = D3Mat::unity();
+			D3Mat mat = D3Mat::unity();
 			//D3Mat mat = D3Mat::scale(D3Vec(1.0, 1.0, 1.0, 1.0));
-			D3Mat mat = D3Mat::scale(D3Vec(LAMBDA, LAMBDA, LAMBDA, 1.0));
+			//D3Mat mat = D3Mat::scale(D3Vec(LAMBDA, LAMBDA, LAMBDA, 1.0));
 			D3Vec d3 = mat.cross(parr[i]);
 			//mat.print();
 			
-			float z = d3.v[2]*(FAR - NEAR);
 
+//#define FLAT
+#ifndef FLAT
+			float z = d3.v[2];
+			float xp = -d3.v[0] / z * NEAR;
+			std::cout << "xp " << xp << " " << " z= " <<  z << " " << NEAR << " " << (z/NEAR) <<std::endl;
+			float yp = -d3.v[1] / z * NEAR;
+#else
+			float xp = -d3.v[0];
+			float yp = -d3.v[1];
+
+			/*
 			float xp = -d3.v[0] /z*NEAR;
 			float yp = -d3.v[1] /z * NEAR * (w_/h_);
 			float xb = w_ / 2 * (1 + xp);
 			float yb = h_ / 2 * (1 + xp);
 			xb = w_ / 2 * (1 - d3.v[0]/z*NEAR);
 			yb = h_ / 2 * (1 - d3.v[1] / z * NEAR);
+			*/
+
+
+#endif
+
+			float xb = w_ / 2 + xp * (w_ / 2);
+			float yb = h_ / 2 + yp * (h_ / 2);
+
+			//std::cout << xb << " " << yb << std::endl;
 
 			sf::Vector2f sfvec(xb, yb);
 			convex.setPoint(i, sfvec);
