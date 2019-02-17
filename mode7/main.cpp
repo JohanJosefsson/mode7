@@ -824,6 +824,7 @@ public:
 class D3
 {
 
+	bool flat_ = false;
 	// create an empty shape
 	sf::ConvexShape convex;
 
@@ -856,6 +857,11 @@ class D3
 		}
 	}
 
+public:
+	void setFlat(bool flat)
+	{
+		flat_ = flat;
+	}
 	void clearPl()
 	{
 		for (int i = 0; i < PL_DEPTH; i++)
@@ -864,8 +870,6 @@ class D3
 		}
 
 	}
-
-public:
 
 
 	D3(int w, int h)
@@ -906,15 +910,21 @@ public:
 			//mat.print();
 			
 
-//#define FLAT
-#ifndef FLAT
-			float z = d3.v[2];
-			float xp = -d3.v[0] / z * NEAR;
-			std::cout << "xp " << xp << " " << " z= " <<  z << " " << NEAR << " " << (z/NEAR) <<std::endl;
-			float yp = -d3.v[1] / z * NEAR;
-#else
-			float xp = -d3.v[0];
-			float yp = -d3.v[1];
+
+			float xp = 0.0;
+			float yp = 0.0;
+			if (!flat_)
+			{
+				float z = d3.v[2];
+				xp = -d3.v[0] / z * NEAR;
+				std::cout << "xp " << xp << " " << " z= " << z << " " << NEAR << " " << (z / NEAR) << std::endl;
+				yp = -d3.v[1] / z * NEAR;
+
+			}
+				else
+			{
+				xp = -d3.v[0];
+				yp = -d3.v[1];
 
 			/*
 			float xp = -d3.v[0] /z*NEAR;
@@ -925,8 +935,7 @@ public:
 			yb = h_ / 2 * (1 - d3.v[1] / z * NEAR);
 			*/
 
-
-#endif
+			}
 
 			float xb = w_ / 2 + xp * (w_ / 2);
 			float yb = h_ / 2 + yp * (h_ / 2);
@@ -1027,6 +1036,7 @@ public:
 	void clear()
 	{
 		arr.clear();
+		clearPl();
 	}
 	
 	void apply(D3Mat& mat)
@@ -1300,6 +1310,25 @@ int main()
 			break;
 		}
 
+		case 'w':
+		{
+			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
+			//d3.apply(mat1);
+			static int turn;
+			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * 0.1 * turn++, 1.0));
+			d3.addPlStage(mat1, 1);
+			break;
+		}
+
+		case 'e':
+		{
+			d3.clearPl();
+			break;
+		}
+
+
+
+
 		case 'x':
 		{
 			static int turn;
@@ -1331,6 +1360,13 @@ int main()
 			D3Mat mat1 = D3Mat::trans(D3Vec(0.2, 0.0, 0.0, 1.0));
 			d3.addPlStage(mat1, 1);
 			break;
+		}
+
+		case 'a':
+		{
+			static bool flat = true;
+			d3.setFlat(flat);
+			flat = !flat;
 		}
 
 
