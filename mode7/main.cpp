@@ -911,21 +911,16 @@ public:
 			
 
 
-			float xp = 0.0;
-			float yp = 0.0;
+			float xp = xp = -d3.v[0];
+			float yp = yp = -d3.v[1];
 			if (!flat_)
 			{
 				float z = d3.v[2];
-				xp = -d3.v[0] / z * NEAR;
-				std::cout << "xp " << xp << " " << " z= " << z << " " << NEAR << " " << (z / NEAR) << std::endl;
-				yp = -d3.v[1] / z * NEAR;
+				xp = -d3.v[0] / z;
+				std::cout << "xp " << xp << " " << " z= " << z << " NEAR=" << NEAR << " LAMBDA=" << LAMBDA << " " << (z / NEAR) << std::endl;
+				yp = -d3.v[1] / z;
 
 			}
-				else
-			{
-				xp = -d3.v[0];
-				yp = -d3.v[1];
-
 			/*
 			float xp = -d3.v[0] /z*NEAR;
 			float yp = -d3.v[1] /z * NEAR * (w_/h_);
@@ -934,8 +929,6 @@ public:
 			xb = w_ / 2 * (1 - d3.v[0]/z*NEAR);
 			yb = h_ / 2 * (1 - d3.v[1] / z * NEAR);
 			*/
-
-			}
 
 			float xb = w_ / 2 + xp * (w_ / 2);
 			float yb = h_ / 2 + yp * (h_ / 2);
@@ -1305,7 +1298,8 @@ int main()
 			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
 			//d3.apply(mat1);
 			static int turn;
-			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * turn++, 1.0));
+			//D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * turn++, 1.0));
+			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -1.0 * turn++, 1.0));
 			d3.addPlStage(mat1, 1);
 			break;
 		}
