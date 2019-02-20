@@ -510,7 +510,7 @@ public:
 	{
 		w_ = w;
 		h_ = h;
-#if 1
+#if 0
 //		if (!track_.loadFromFile("../res/track.png"))
 		if (!track_.loadFromFile("../res/omni.png"))
 		{
@@ -593,7 +593,12 @@ public:
 
 	};
 
-
+	void getPos(float& x, float& y, float& th)
+	{
+		x = wx;
+		y = wy;
+		th = theta;
+	}
 
 
 	void draw(sf::RenderWindow& bkg)
@@ -917,7 +922,7 @@ public:
 			{
 				float z = d3.v[2];
 				xp = -d3.v[0] / z;
-				std::cout << "xp " << xp << " " << " z= " << z << " NEAR=" << NEAR << " LAMBDA=" << LAMBDA << " " << (z / NEAR) << std::endl;
+				//std::cout << "xp " << xp << " " << " z= " << z << " NEAR=" << NEAR << " LAMBDA=" << LAMBDA << " " << (z / NEAR) << std::endl;
 				yp = -d3.v[1] / z;
 
 			}
@@ -1209,7 +1214,7 @@ int main()
 
 		board.draw(window);
 		//tree.draw(window);
-		//track.draw(window);
+		track.draw(window);
 		text.draw(window);
 		//d3.drawFlatXY(window);
 		//d3.drawFlatXZ(window);
@@ -1230,10 +1235,30 @@ int main()
 
 
 			board.tick(dTime);
-			//track.tick(dTime);
-			sprintf(text.getBuf(), "% 4.2f", dTime / maxTimePerFrame);
+			track.tick(dTime);
+			//sprintf(text.getBuf(), "% 4.2f", dTime / maxTimePerFrame);
+			{
+				float x, y, theta;
+				track.getPos(x, y, theta);
+				sprintf(text.getBuf(), "% 4.2f:% 4.2f:% 4.2f", x, y, theta);
+			}
 			//printf("% 4.2f ", dTime / maxTimePerFrame);
 			//tree.move(rfwd, rsw);
+			{
+				float wx;
+				float wy;
+				float theta;
+				track.getPos(wx, wy, theta);
+				std::cout << wx << " " << wy << " " << theta << std::endl;
+				//D3Vec d = D3Mat::rotY(theta).cross( D3Vec(-wx * LAMBDA, 0.0, -wy * LAMBDA, 1.0));
+				D3Vec d = D3Mat::rotY(theta).cross(D3Vec(-wx, 0.0, -wy, 1.0));
+				//D3Vec d = D3Mat::rotY(theta).cross( D3Vec(-wx / LAMBDA, 0.0, -wy / LAMBDA, 1.0));
+				D3Mat m = D3Mat::trans(d);
+				d3.addPlStage(m, 2);
+				d.print();
+				m.print();
+				//D3Vec trans = D3Mat::trans()
+			}
 		}
 		jsx = board.get();
 		int printjsx = (int)jsx;
