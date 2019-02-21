@@ -1245,23 +1245,45 @@ int main()
 			//printf("% 4.2f ", dTime / maxTimePerFrame);
 			//tree.move(rfwd, rsw);
 			{
+				// Determin the sprites position
+				float x = 0.5;
+				float z = 0.5;
+
+				// Get the cameras position and angle
 				float wx;
-				float wy;
+				float wz;
 				float theta;
-				track.getPos(wx, wy, theta);
-				std::cout << wx << " " << wy << " " << theta << std::endl;
-				//D3Vec d = D3Mat::rotY(theta).cross( D3Vec(-wx * LAMBDA, 0.0, -wy * LAMBDA, 1.0));
-				D3Vec d = D3Mat::rotY(theta).cross(D3Vec(-wx, 0.0, -wy, 1.0));
-				//D3Vec d = D3Mat::rotY(theta).cross( D3Vec(-wx / LAMBDA, 0.0, -wy / LAMBDA, 1.0));
-				D3Mat m = D3Mat::trans(d);
-				d3.addPlStage(m, 2);
-				d.print();
-				m.print();
+				track.getPos(wx, wz, theta);
+
+				// Scale the sprite to world scale
+				D3Mat scale = D3Mat::scale(D3Vec(0.001, 0.001, 0.001, 1.0));
+				d3.addPlStage(scale, 0);
+
+				// Rotate it so it aligns with the camera
+				D3Mat align = D3Mat::rotY(theta);
+				d3.addPlStage(align, 1);
+
+				// Translate 
+				D3Vec delta = D3Vec(x - wx, 0, z - wz, 1.0);
+				//D3Vec delta = D3Vec(wx - x, 0, wz - z, 1.0);
+				D3Mat tr = D3Mat::trans(delta);
+				d3.addPlStage(tr, 2);
+				
+
+
+				//D3Vec d = D3Mat::rotY(theta).cross(D3Vec(-wx, 0.0, -wy, 1.0));
+				//D3Mat align 
+
+
+				
+				
+				//d.print();
+				//m.print();
 				//D3Vec trans = D3Mat::trans()
 			}
 		}
 		jsx = board.get();
-		int printjsx = (int)jsx;
+			int printjsx = (int)jsx;
 
 
 		static bool spacedone = false;
