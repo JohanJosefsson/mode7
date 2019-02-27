@@ -1272,20 +1272,24 @@ int main()
 				D3Mat scale = D3Mat::scale(D3Vec(0.01, 0.01, 0.01, 1.0));
 				d3.addPlStage(scale, 1);
 
+				static sf::Time t = sf::Time::Zero;
+				t += dTime;
+				float h = 0.01*sin(2 * M_PI*t.asSeconds() / 5.0);
+				D3Mat Hmove = D3Mat::trans(D3Vec(0.0, h, 0.0, 1.0));
+				d3.addPlStage(Hmove, 2);
 
 
-
-				// Move over to the cameras coordnate system:
+				// Move over to the cameras coordinate system:
 
 				// Translate 
 				D3Vec delta = D3Vec(-1 * (wx - x), 0, z - wz, 1.0);
 				//D3Vec delta = D3Vec(wx - x, 0, wz - z, 1.0);
 				D3Mat tr = D3Mat::trans(delta);
-				d3.addPlStage(tr, 2);
+				d3.addPlStage(tr, 3);
 
 				// Rotate it so it aligns with the camera
 				D3Mat align = D3Mat::rotY(theta);
-				d3.addPlStage(align, 3);
+				d3.addPlStage(align, 4);
 
 				
 				//std::cout << "wx - x :" << wx << " " << x << " : " << (wx - x) << std::endl;
