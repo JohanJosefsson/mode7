@@ -9,7 +9,7 @@
 #include <array>
 #include <vector>
 
-//#define JJ_FULLSCREEN
+#define JJ_FULLSCREEN
 
 #define maxTimePerFrame (sf::seconds(1.f / (80.0)))
 // TODO should be minTime? There should be a max too...
@@ -488,8 +488,8 @@ class Track
 			}
 		}
 
-		plotOnTrack(wx, wy, sf::Color::White);
-
+//		plotOnTrack(wx, wy, sf::Color::White);
+		plotOnTrack(0.5, 0.5, sf::Color::Magenta);
 
 		if (showTrack_) {
 			texture_.loadFromImage(track_);
@@ -587,6 +587,17 @@ public:
 			wx -= dTime.asSeconds()*(0.05)*sinf(theta);
 			wy += dTime.asSeconds()*(0.05)*cosf(theta);
 		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Hyphen)) {
+			wx += dTime.asSeconds()*(0.05)*cosf(theta);
+			wy += dTime.asSeconds()*(0.05)*sinf(theta);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Period)) {
+			wx -= dTime.asSeconds()*(0.05)*cosf(theta);
+			wy -= dTime.asSeconds()*(0.05)*sinf(theta);
+		}
+
+
 
 
 
@@ -842,16 +853,6 @@ class D3
 	static const int PL_DEPTH = 5;
 	D3Mat pl[PL_DEPTH];
 
-	D3Vec transformVertex(D3Vec& v)
-	{
-		D3Vec v1 = v;
-		for (int i = 0; i < PL_DEPTH; i++)
-		{
-			v1 = pl[i].cross(v1);
-		}
-		return v1;
-	}
-
 	void doTransform()
 	{
 		parr.clear();
@@ -863,6 +864,18 @@ class D3
 	}
 
 public:
+
+	D3Vec transformVertex(D3Vec& v)
+	{
+		D3Vec v1 = v;
+		for (int i = 0; i < PL_DEPTH; i++)
+		{
+			v1 = pl[i].cross(v1);
+		}
+		return v1;
+	}
+
+
 	void setFlat(bool flat)
 	{
 		flat_ = flat;
@@ -1256,19 +1269,27 @@ int main()
 				track.getPos(wx, wz, theta);
 
 				// Scale the sprite to world scale
-				D3Mat scale = D3Mat::scale(D3Vec(0.001, 0.001, 0.001, 1.0));
-				d3.addPlStage(scale, 0);
+				D3Mat scale = D3Mat::scale(D3Vec(0.01, 0.01, 0.01, 1.0));
+				d3.addPlStage(scale, 1);
 
-				// Rotate it so it aligns with the camera
-				D3Mat align = D3Mat::rotY(theta);
-				d3.addPlStage(align, 1);
+
+
+
+				// Move over to the cameras coordnate system:
 
 				// Translate 
-				D3Vec delta = D3Vec(x - wx, 0, z - wz, 1.0);
+				D3Vec delta = D3Vec(-1 * (wx - x), 0, z - wz, 1.0);
 				//D3Vec delta = D3Vec(wx - x, 0, wz - z, 1.0);
 				D3Mat tr = D3Mat::trans(delta);
 				d3.addPlStage(tr, 2);
+
+				// Rotate it so it aligns with the camera
+				D3Mat align = D3Mat::rotY(theta);
+				d3.addPlStage(align, 3);
+
 				
+				//std::cout << "wx - x :" << wx << " " << x << " : " << (wx - x) << std::endl;
+				//d3.transformVertex(delta).print();
 
 
 				//D3Vec d = D3Mat::rotY(theta).cross(D3Vec(-wx, 0.0, -wy, 1.0));
