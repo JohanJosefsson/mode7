@@ -387,12 +387,6 @@ class Track
 	int w_;
 	int h_;
 
-
-
-
-
-
-
 	float wx = 0.5;
 	float wy = 0.5;
 	float theta = 0;
@@ -406,7 +400,6 @@ class Track
 		if (x < 0.0 || x >= 1.0 || y < 0.0 || y >= 1.0)return;
 		int tx = x * track_.getSize().x;
 		int ty = y * track_.getSize().y;
-		//std::cout << tx << " " << ty << std::endl;
 		track_.setPixel(tx, ty, c);
 	}
 
@@ -416,11 +409,8 @@ class Track
 		if (x < 0.0 || x >= 1.0 || y < 0.0 || y >= 1.0)return sf::Color::Cyan;
 		int tx = x * track_.getSize().x;
 		int ty = y * track_.getSize().y;
-		//std::cout << tx << " " << ty << std::endl;
 		return track_.getPixel(tx, ty);
 	}
-
-
 
 	void plotOnTrack(float x, float y, sf::Color c)
 	{
@@ -596,10 +586,6 @@ public:
 			wx -= dTime.asSeconds()*(0.05)*cosf(theta);
 			wy -= dTime.asSeconds()*(0.05)*sinf(theta);
 		}
-
-
-
-
 
 
 	};
@@ -922,36 +908,19 @@ public:
 		for (int i = 0; i < parr.size(); i++)
 		{
 			D3Mat mat = D3Mat::unity();
-			//D3Mat mat = D3Mat::scale(D3Vec(1.0, 1.0, 1.0, 1.0));
-			//D3Mat mat = D3Mat::scale(D3Vec(LAMBDA, LAMBDA, LAMBDA, 1.0));
-			D3Vec d3 = mat.cross(parr[i]);
-			//mat.print();
-			
-
-
+			D3Vec d3 = parr[i];
 			float xp = xp = -d3.v[0];
 			float yp = yp = -d3.v[1];
 			if (!flat_)
 			{
 				float z = d3.v[2];
 				xp = -d3.v[0] / z;
-				//std::cout << "xp " << xp << " " << " z= " << z << " NEAR=" << NEAR << " LAMBDA=" << LAMBDA << " " << (z / NEAR) << std::endl;
 				yp = -d3.v[1] / z;
 
 			}
-			/*
-			float xp = -d3.v[0] /z*NEAR;
-			float yp = -d3.v[1] /z * NEAR * (w_/h_);
-			float xb = w_ / 2 * (1 + xp);
-			float yb = h_ / 2 * (1 + xp);
-			xb = w_ / 2 * (1 - d3.v[0]/z*NEAR);
-			yb = h_ / 2 * (1 - d3.v[1] / z * NEAR);
-			*/
 
 			float xb = w_ / 2 + xp * (w_ / 2);
 			float yb = h_ / 2 + yp * (h_ / 2);
-
-			//std::cout << xb << " " << yb << std::endl;
 
 			sf::Vector2f sfvec(xb, yb);
 			convex.setPoint(i, sfvec);
@@ -968,26 +937,11 @@ public:
 		convex.setPointCount(parr.size());
 		for (int i = 0; i < parr.size(); i++)
 		{
-			//float x = w_ / 2 * (1 + arr[i].v[0]);
-			//float y = h_ / 2 * (1 + arr[i].v[1]);
-		/*	float z = parr[i].v[2];
-			float xp = -parr[i].v[0] / z * NEAR;
-			float yp = -parr[i].v[1] / z * NEAR * (w_ / h_);
-			float xb = w_ / 2 * (1 + xp);
-			float yb = h_ / 2 * (1 + xp);
-			*/
-
 
 			float xb = w_ / 2 * (1 + parr[i].v[0]);
 			float yb = h_ / 2 * (1 + parr[i].v[1]);
-			//xb = w_ / 2 * (1 - parr[i].v[0] / z * NEAR);
-			//yb = h_ / 2 * (1 - parr[i].v[1] / z * NEAR);
-
-
 
 			sf::Vector2f sfvec(xb, yb);
-			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
-			//std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
 			convex.setPoint(i, sfvec);
 		}
 		bkg.draw(convex);
@@ -1000,33 +954,15 @@ public:
 		convex.setPointCount(parr.size());
 		for (int i = 0; i < parr.size(); i++)
 		{
-			//float x = w_ / 2 * (1 + arr[i].v[0]);
-			//float y = h_ / 2 * (1 + arr[i].v[1]);
-		/*	float z = parr[i].v[2];
-			float xp = -parr[i].v[0] / z * NEAR;
-			float yp = -parr[i].v[1] / z * NEAR * (w_ / h_);
-			float xb = w_ / 2 * (1 + xp);
-			float yb = h_ / 2 * (1 + xp);
-			*/
-
 
 			float xb = w_ / 2 * (1 + parr[i].v[0]);
 			float zb = h_ / 2 * (1 + parr[i].v[2]);
-			//xb = w_ / 2 * (1 - parr[i].v[0] / z * NEAR);
-			//yb = h_ / 2 * (1 - parr[i].v[1] / z * NEAR);
-
-
 
 			sf::Vector2f sfvec(xb, zb);
-			//sf::Vector2f sfvec(w_/2*(1 + arr[i].v[0]), h_ / 2 * (1 +arr[i].v[1]));
-			//std::cout << i << " " << sfvec.x << " " << sfvec.y << std::endl;
 			convex.setPoint(i, sfvec);
 		}
 		bkg.draw(convex);
 	}
-
-
-
 
 
 	void add(D3Vec v)
@@ -1133,35 +1069,11 @@ char getKey()
 		
 	}
 	return '\0';
-	//sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
-
 };
 
 int main()
 {
 
-
-	D3Mat d = D3Mat::unity();
-	std::cout << "------" << std::endl;
-	//d.print();
-
-	std::cout << "------" << std::endl;
-	D3Vec v;
-	//v.print();
-	std::cout << "------" << std::endl;
-	D3Vec v1;
-
-	v1 = d.cross(v);
-
-	//v1.print();
-	std::cout << "------" << std::endl;
-	D3Vec v2 = D3Vec::pos(0.1, 0.2, 0.0);
-	//v2.print();
-	std::cout << "------" << std::endl;
-
-	D3Mat tr = D3Mat::trans(v2);
-	std::cout << "translation" << std::endl;
-	tr.print();
 
 
 
@@ -1182,20 +1094,12 @@ int main()
 
 
 	D3 d3(screen.getWidth(), screen.getHeight());
-	//d3.addxy(-0.1, -0.1);
-	//d3.addxy(0.1, -0.1);
-	//d3.addxy(0.1, 0.1);
 	d3.add(D3Vec(-0.1, -0.1, 0.0, 1.0));
 	d3.add(D3Vec(0.1, -0.1, 0.005, 1.0));
 	d3.add(D3Vec(0.1, 0.1, 0.0, 1.0));
 
-
-	//d3.addxy(-0.1, 0.1);
-
 	Text text;
 	Track track(screen.getWidth(), screen.getHeight());
-
-	//Tree tree(screen.getWidth(), screen.getHeight(), ct);
 
 	// run the program as long as the window is open
 	while (window.isOpen())
@@ -1290,21 +1194,7 @@ int main()
 				// Rotate it so it aligns with the camera
 				D3Mat align = D3Mat::rotY(theta);
 				d3.addPlStage(align, 4);
-
 				
-				//std::cout << "wx - x :" << wx << " " << x << " : " << (wx - x) << std::endl;
-				//d3.transformVertex(delta).print();
-
-
-				//D3Vec d = D3Mat::rotY(theta).cross(D3Vec(-wx, 0.0, -wy, 1.0));
-				//D3Mat align 
-
-
-				
-				
-				//d.print();
-				//m.print();
-				//D3Vec trans = D3Mat::trans()
 			}
 		}
 		jsx = board.get();
@@ -1367,10 +1257,7 @@ int main()
 #endif
 		case 'q':
 		{
-			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
-			//d3.apply(mat1);
 			static int turn;
-			//D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * turn++, 1.0));
 			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -1.0 * turn++, 1.0));
 			d3.addPlStage(mat1, 1);
 			break;
@@ -1378,8 +1265,6 @@ int main()
 
 		case 'w':
 		{
-			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
-			//d3.apply(mat1);
 			static int turn;
 			D3Mat mat1 = D3Mat::trans(D3Vec(0.0, 0.0, -NEAR * 0.1 * turn++, 1.0));
 			d3.addPlStage(mat1, 1);
@@ -1421,8 +1306,6 @@ int main()
 
 		case 'r':
 		{
-			//D3Mat mat1 = D3Mat::rotZ(M_PI / 32.0);
-			//d3.apply(mat1);
 			D3Mat mat1 = D3Mat::trans(D3Vec(0.2, 0.0, 0.0, 1.0));
 			d3.addPlStage(mat1, 1);
 			break;
