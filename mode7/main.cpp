@@ -816,12 +816,15 @@ public:
 // float alpha = M_PI / 4;
 // float near = 0.0005;
 // float far = 0.015;
+
+#if 0
 #define alpha (M_PI / 4)
 #define near (0.0005)
 #define far (0.015)
 #define NEAR (near * cosf(alpha))
 #define FAR (far * cosf(alpha))
 #define LAMBDA (near * sinf(alpha))
+#endif
 
 class D3
 {
@@ -905,18 +908,19 @@ public:
 		if (parr.size() < 2)return;
 		convex.setPointCount(parr.size());
 		std::cout << std::endl;
+		bool visible = true;
 		for (int i = 0; i < parr.size(); i++)
 		{
-			D3Mat mat = D3Mat::unity();
 			D3Vec d3 = parr[i];
 			float xp = xp = -d3.v[0];
 			float yp = yp = -d3.v[1];
 			if (!flat_)
 			{
 				float z = d3.v[2];
+				if (z > 0.0)visible = false;
 				xp = -d3.v[0] / z;
 				yp = -d3.v[1] / z;
-
+				std::cout << z << std::endl;
 			}
 
 			float xb = w_ / 2 + xp * (w_ / 2);
@@ -925,7 +929,8 @@ public:
 			sf::Vector2f sfvec(xb, yb);
 			convex.setPoint(i, sfvec);
 		}
-		bkg.draw(convex);
+		if(visible)
+			bkg.draw(convex);
 	}
 
 
@@ -1262,7 +1267,7 @@ int main()
 			d3.addPlStage(mat1, 1);
 			break;
 		}
-
+#if 0
 		case 'w':
 		{
 			static int turn;
@@ -1270,7 +1275,7 @@ int main()
 			d3.addPlStage(mat1, 1);
 			break;
 		}
-
+#endif
 		case 'e':
 		{
 			d3.clearPl();
