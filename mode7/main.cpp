@@ -500,7 +500,7 @@ public:
 	{
 		w_ = w;
 		h_ = h;
-#if 0
+#if 1
 //		if (!track_.loadFromFile("../res/track.png"))
 		if (!track_.loadFromFile("../res/omni.png"))
 		{
@@ -883,7 +883,7 @@ public:
 	{
 		w_ = w;
 		h_ = h;
-
+		convex.setFillColor(sf::Color(100, 200, 50, 150));
 
 #if 0
 		// resize it to 5 points
@@ -907,7 +907,7 @@ public:
 		doTransform();
 		if (parr.size() < 2)return;
 		convex.setPointCount(parr.size());
-		std::cout << std::endl;
+
 		bool visible = true;
 		for (int i = 0; i < parr.size(); i++)
 		{
@@ -920,7 +920,6 @@ public:
 				if (z > 0.0)visible = false;
 				xp = -d3.v[0] / z;
 				yp = -d3.v[1] / z;
-				std::cout << z << std::endl;
 			}
 
 			float xb = w_ / 2 + xp * (w_ / 2);
