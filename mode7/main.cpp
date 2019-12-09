@@ -353,28 +353,6 @@ public:
 
 };
 
-/* Demo thing that let a ball float over the screen */
-class Ball
-{
-	float x;
-	float y;
-	sf::CircleShape circle;
-public:
-	Ball() : x(100.0), circle(50.0) {};
-	void move(float playerFwd, float playerSidews)
-	{
-		y += playerFwd;
-		x -= playerSidews;
-		if (y > 1000.0) y = 0.0;
-		circle.setPosition(x, y);
-	}
-	void draw(sf::RenderWindow& bkg) {
-
-		bkg.draw(circle);
-	}
-} Ball;
-
-
 
 
 class Track
@@ -479,7 +457,8 @@ class Track
 		}
 
 //		plotOnTrack(wx, wy, sf::Color::White);
-		plotOnTrack(0.5, 0.5, sf::Color::Magenta);
+//		plotOnTrack(0.5, 0.5, sf::Color::Magenta);
+		plotOnTrack(0.5, 0.5, sf::Color::Blue);
 
 		if (showTrack_) {
 			texture_.loadFromImage(track_);
@@ -501,8 +480,8 @@ public:
 		w_ = w;
 		h_ = h;
 #if 1
-//		if (!track_.loadFromFile("../res/track.png"))
-		if (!track_.loadFromFile("../res/omni.png"))
+		if (!track_.loadFromFile("../res/track.png"))
+//		if (!track_.loadFromFile("../res/omni.png"))
 		{
 			printf("Error loading pic!\n");
 			exit(1);
@@ -883,7 +862,8 @@ public:
 	{
 		w_ = w;
 		h_ = h;
-		convex.setFillColor(sf::Color(100, 200, 50, 150));
+		//convex.setFillColor(sf::Color(100, 200, 50, 150));
+		convex.setFillColor(sf::Color(200, 20, 50, 250));
 
 #if 0
 		// resize it to 5 points
@@ -1101,6 +1081,7 @@ int main()
 	d3.add(D3Vec(-0.1, -0.1, 0.0, 1.0));
 	d3.add(D3Vec(0.1, -0.1, 0.005, 1.0));
 	d3.add(D3Vec(0.1, 0.1, 0.0, 1.0));
+	//d3.add(D3Vec(0.2, 0.3, 0.3, 1.0));
 
 	Text text;
 	Track track(screen.getWidth(), screen.getHeight());
@@ -1136,6 +1117,8 @@ int main()
 		board.draw(window);
 		//tree.draw(window);
 		track.draw(window);
+		//track.showTrack_ = 1;
+		//track.paintTrack_ = 1;
 		text.draw(window);
 		//d3.drawFlatXY(window);
 		//d3.drawFlatXZ(window);
@@ -1155,7 +1138,7 @@ int main()
 			// Update stuff...
 
 
-			board.tick(dTime);
+			//board.tick(dTime);
 			track.tick(dTime);
 			//sprintf(text.getBuf(), "% 4.2f", dTime / maxTimePerFrame);
 			{
@@ -1201,8 +1184,8 @@ int main()
 				
 			}
 		}
-		jsx = board.get();
-			int printjsx = (int)jsx;
+		//jsx = board.get();
+			//int printjsx = (int)jsx;
 
 
 		static bool spacedone = false;
@@ -1321,7 +1304,19 @@ int main()
 			d3.setFlat(flat);
 			flat = !flat;
 		}
+		break;
 
+
+		case 'p':
+		{
+			track.paintTrack_ = !track.paintTrack_;
+		}
+		break;
+		case 's':
+		{
+			track.showTrack_ = !track.showTrack_;
+		}
+		break;
 
 
 		}; //switch
